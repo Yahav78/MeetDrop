@@ -434,3 +434,50 @@ body {
     padding: 1rem !important;
   }
 }
+
+/* History Feature Overrides */
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+.btn-icon:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.icon-fav {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--slate-500);
+  transition: color 0.2s, transform 0.2s;
+}
+.icon-fav.active {
+  color: #fbbf24; /* Amber/Gold */
+}
+.icon-fav:hover {
+  transform: scale(1.1);
+}
+.icon-hide {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--slate-500);
+  transition: color 0.2s;
+}
+.icon-hide:hover {
+  color: var(--red-500);
+}
+.favorite-card {
+  box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.2);
+}
+/* Responsive overrides for History Action Buttons */
+@media (max-width: 768px) {
+  .btn-icon {
+     padding: 0.75rem; /* Larger touch target minimums */
+  }
+}
+

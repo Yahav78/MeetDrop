@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
   bio: { type: String },
   githubUrl: { type: String },
   linkedinUrl: { type: String },
+  favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  hiddenConnections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
 module.exports = mongoose.model('User', userSchema);

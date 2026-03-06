@@ -34,20 +34,69 @@ router.put('/users/:id', async (req, res) => {
 router.get('/users/:id/history', async (req, res) => {
   try {
     const userId = req.params.id;
+    const requestingUser = await User.findById(userId);
+
     // Find connections where user is either user1 or user2
     const connections = await Connection.find({
       $or: [{ user1_id: userId }, { user2_id: userId }]
     }).populate('user1_id', '-password').populate('user2_id', '-password').sort({ timestamp: -1 });
 
+    const hiddenIds = requestingUser.hiddenConnections ? requestingUser.hiddenConnections.map(id => id.toString()) : [];
+
     // Format the return array to just be a list of the *other* users
-    const history = connections.map(conn => {
+    let history = connections.map(conn => {
       // The matched user is whichever one is NOT the requester
       return conn.user1_id._id.toString() === userId ? conn.user2_id : conn.user1_id;
     });
 
+    // Filter out hidden connections
+    history = history.filter(u => !hiddenIds.includes(u._id.toString()));
+
     res.json(history);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch history' });
+  }
+});
+
+// POST /api/users/:id/favorites/:targetId - Add Favorite
+router.post('/users/:id/favorites/:targetId', async (req, res) => {
+  try {
+     const user = await User.findByIdAndUpdate(
+       req.params.id, 
+       { $addToSet: { favorites: req.params.targetId } },
+       { new: true }
+     ).select('-password');
+     res.json(user);
+  } catch (err) {
+     res.status(500).json({ error: 'Failed to add favorite' });
+  }
+});
+
+// DELETE /api/users/:id/favorites/:targetId - Remove Favorite
+router.delete('/users/:id/favorites/:targetId', async (req, res) => {
+  try {
+     const user = await User.findByIdAndUpdate(
+       req.params.id, 
+       { $pull: { favorites: req.params.targetId } },
+       { new: true }
+     ).select('-password');
+     res.json(user);
+  } catch (err) {
+     res.status(500).json({ error: 'Failed to remove favorite' });
+  }
+});
+
+// POST /api/users/:id/history/hide/:targetId - Hide Connection
+router.post('/users/:id/history/hide/:targetId', async (req, res) => {
+  try {
+     const user = await User.findByIdAndUpdate(
+       req.params.id, 
+       { $addToSet: { hiddenConnections: req.params.targetId } },
+       { new: true }
+     ).select('-password');
+     res.json(user);
+  } catch (err) {
+     res.status(500).json({ error: 'Failed to hide connection' });
   }
 });
 

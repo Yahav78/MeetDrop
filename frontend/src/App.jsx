@@ -83,8 +83,11 @@ function App() {
       setIsAdmin(true);
       localStorage.setItem('isAdmin', 'true');
     } else {
-      setUser(data.user);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const u = data.user;
+      if (!u.favorites) u.favorites = [];
+      if (!u.hiddenConnections) u.hiddenConnections = [];
+      setUser(u);
+      localStorage.setItem('user', JSON.stringify(u));
     }
     localStorage.setItem('token', data.token);
   };
@@ -99,6 +102,8 @@ function App() {
   };
 
   const updateLocalUser = (updatedUser) => {
+    if (!updatedUser.favorites) updatedUser.favorites = [];
+    if (!updatedUser.hiddenConnections) updatedUser.hiddenConnections = [];
     setUser(updatedUser);
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
@@ -151,7 +156,7 @@ function App() {
           {/* Protected Normal Routes */}
           <Route path="/" element={user ? <MainApp user={user} /> : <Navigate to="/login" />} />
           <Route path="/profile/edit" element={user ? <EditProfile user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
-          <Route path="/history" element={user ? <HistoryView user={user} /> : <Navigate to="/login" />} />
+          <Route path="/history" element={user ? <HistoryView user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
           
           {/* Protected Admin Route */}
           <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
