@@ -343,3 +343,94 @@ body {
   80% { transform: translateY(10px); }
   100% { transform: translateY(0); }
 }
+
+/* Mobile Responsiveness Rules */
+@media (max-width: 768px) {
+  /* Header Adjustments */
+  .header {
+    padding: 1rem;
+  }
+  .logo-title {
+    font-size: 1.25rem;
+  }
+  .status-text {
+    font-size: 0.65rem;
+  }
+  .status-indicator-wrap span[style] {
+    margin: 0 0.25rem !important;
+  }
+
+  /* Main Display Adjustments */
+  .main-content {
+    padding: 1rem;
+    padding-top: 1.5rem;
+  }
+
+  /* Form Containers */
+  .form-container {
+    padding: 1.5rem 1rem;
+    margin-top: 1.5rem;
+  }
+  .form-title {
+    font-size: 1.5rem;
+  }
+  .form-subtitle {
+    font-size: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Connect / Loading Screens */
+  .connect-container, .radar-container, .error-container {
+    margin-top: 2rem;
+  }
+  .connect-btn {
+    width: 10rem;
+    height: 10rem;
+  }
+  .connect-icon {
+    width: 3rem;
+    height: 3rem;
+  }
+  .connect-text {
+    font-size: 1rem;
+  }
+  .radar {
+    width: 160px;
+    height: 160px;
+  }
+
+  /* Profile Card Adjustments */
+  .card-wrapper {
+    margin-top: 1rem;
+  }
+  .card-panel {
+    padding: 1.5rem 1rem;
+  }
+  .card-avatar {
+    width: 5rem;
+    height: 5rem;
+    margin-top: 1rem;
+  }
+  .card-avatar span {
+    font-size: 2rem;
+  }
+  .card-name {
+    font-size: 1.5rem;
+  }
+  .card-job {
+    font-size: 0.875rem;
+  }
+  .card-links {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  /* Admin Table Horizontal Scroll */
+  .glass-panel table th, .glass-panel table td {
+    padding: 0.75rem 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+  .glass-panel[style*="padding: 2rem"] {
+    padding: 1rem !important;
+  }
+}
