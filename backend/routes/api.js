@@ -52,7 +52,17 @@ router.get('/users/:id/history', async (req, res) => {
     // Filter out hidden connections
     history = history.filter(u => !hiddenIds.includes(u._id.toString()));
 
-    res.json(history);
+    // Deduplicate history array by user ID
+    const uniqueHistory = [];
+    const seen = new Set();
+    for (const u of history) {
+      if (!seen.has(u._id.toString())) {
+        seen.add(u._id.toString());
+        uniqueHistory.push(u);
+      }
+    }
+
+    res.json(uniqueHistory);
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch history' });
   }

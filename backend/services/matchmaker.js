@@ -31,12 +31,30 @@ async function handleMatchRequest(userId, lat, lon, req, res) {
 
     if (matchedPending) {
        // We matched with someone!
-       const connection = new Connection({
-         user1_id: userId,
-         user2_id: matchedPending.userId,
-         location: { lat, lon }
-       });
-       await connection.save();
+       // Try to update existing connection or create a new one
+       let connection = await Connection.findOneAndUpdate(
+         {
+           $or: [
+             { user1_id: userId, user2_id: matchedPending.userId },
+             { user1_id: matchedPending.userId, user2_id: userId }
+           ]
+         },
+         { $set: { location: { lat, lon }, timestamp: Date.now() } },
+         { new: true }
+       );
+
+       if (!connection) {
+         connection = new Connection({
+           user1_id: userId,
+           user2_id: matchedPending.userId,
+           location: { lat, lon }
+         });
+         await connection.save();
+       }
+
+       // Un-hide users from each other's history (fix for deleted users not reappearing)
+       await User.findByIdAndUpdate(userId, { $pull: { hiddenConnections: matchedPending.userId } });
+       await User.findByIdAndUpdate(matchedPending.userId, { $pull: { hiddenConnections: userId } });
        
        // Return the other user's profile immediately
        const otherUser = await User.findById(matchedPending.userId).select('-password');
