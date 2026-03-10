@@ -53,6 +53,10 @@ router.post('/google', async (req, res) => {
   try {
     const { token } = req.body;
 
+    if (!token) {
+      return res.status(400).json({ error: 'Google tokens are required' });
+    }
+
     // Verify the Google token
     const ticket = await client.verifyIdToken({
       idToken: token,
@@ -88,20 +92,14 @@ router.post('/google', async (req, res) => {
       user: { id: user.id }
     };
 
-    jwt.sign(
-      jwtPayload,
-      JWT_SECRET,
-      { expiresIn: '5d' },
-      (err, jwtToken) => {
-        if (err) throw err;
-        const userObj = user.toObject();
-        delete userObj.password;
-        res.json({ token: jwtToken, user: userObj, isAdmin: false });
-      }
-    );
+    const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '5d' });
+    const userObj = user.toObject();
+    delete userObj.password;
+    res.json({ token: jwtToken, user: userObj, isAdmin: false });
+
   } catch (error) {
     console.error('Google Auth Error:', error);
-    res.status(401).json({ error: 'Invalid Google Token' });
+    res.status(400).json({ error: 'Authentication failed. Please try again.' });
   }
 });
 
@@ -137,18 +135,11 @@ router.post('/login', async (req, res) => {
       user: { id: user.id }
     };
 
-    jwt.sign(
-      payload,
-      JWT_SECRET,
-      { expiresIn: '5d' },
-      (err, token) => {
-        if (err) throw err;
-        // Optionally send back user ID and object (omitting password)
-        const userObj = user.toObject();
-        delete userObj.password;
-        res.json({ token, user: userObj, isAdmin: false });
-      }
-    );
+    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '5d' });
+    const userObj = user.toObject();
+    delete userObj.password;
+    res.json({ token, user: userObj, isAdmin: false });
+
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Server error during login' });

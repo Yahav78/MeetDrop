@@ -17,7 +17,8 @@ export default function AuthScreens({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const endpoint = isLogin ? `${API_URL}/api/auth/login` : `${API_URL}/api/auth/register`;
 
     try {
       const res = await fetch(endpoint, {
@@ -50,8 +51,9 @@ export default function AuthScreens({ onLogin }) {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     try {
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(`${API_URL}/api/auth/google`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential })
