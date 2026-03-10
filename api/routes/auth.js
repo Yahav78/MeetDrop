@@ -172,7 +172,7 @@ router.post('/complete-profile', async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (!decoded.user || !decoded.user.id) return res.status(401).json({ error: 'Invalid token' });
 
-    const { username, jobTitle, bio, githubUrl, linkedinUrl } = req.body;
+    const { username, firstName, lastName, jobTitle, bio, githubUrl, linkedinUrl } = req.body;
 
     const existingUser = await User.findOne({ username });
     if (existingUser && existingUser.id !== decoded.user.id) {
@@ -183,6 +183,8 @@ router.post('/complete-profile', async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     user.username = username;
+    if (firstName) user.firstName = firstName;
+    if (lastName) user.lastName = lastName;
     if (jobTitle) user.jobTitle = jobTitle;
     if (bio) user.bio = bio;
     if (githubUrl) user.githubUrl = githubUrl;

@@ -101,12 +101,12 @@ export default function CompleteProfile({ onLogin }) {
             <form onSubmit={handleSubmit} className="form-group-list">
                 <div style={{ display: 'flex', gap: '1rem' }}>
                     <div className="form-group" style={{ flex: 1 }}>
-                        <label>First Name</label>
-                        <input name="firstName" value={formData.firstName} readOnly className="form-input" style={{ opacity: 0.7 }} />
+                        <label>First Name *</label>
+                        <input required name="firstName" value={formData.firstName} onChange={handleChange} className="form-input" />
                     </div>
                     <div className="form-group" style={{ flex: 1 }}>
-                        <label>Last Name</label>
-                        <input name="lastName" value={formData.lastName} readOnly className="form-input" style={{ opacity: 0.7 }} />
+                        <label>Last Name *</label>
+                        <input required name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" />
                     </div>
                 </div>
 
