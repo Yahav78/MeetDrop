@@ -15,10 +15,10 @@ export default function DigitalCard({ user, onReset }) {
         </div>
 
         <div className="card-avatar">
-          <span>{user.name.charAt(0).toUpperCase()}</span>
+          <span>{user.firstName?.charAt(0).toUpperCase()}</span>
         </div>
 
-        <h2 className="card-name">{user.name}</h2>
+        <h2 className="card-name">{user.firstName} {user.lastName}</h2>
         {user.jobTitle && <p className="card-job">{user.jobTitle}</p>}
 
         {user.bio && (

@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation, Link } from 'react-r
 import AuthScreens from './components/AuthScreens';
 import EditProfile from './components/EditProfile';
 import HistoryView from './components/HistoryView';
+import CompleteProfile from './components/CompleteProfile';
 import AdminDashboard from './components/AdminDashboard';
 import ConnectButton from './components/ConnectButton';
 import RadarLoading from './components/RadarLoading';
@@ -118,49 +119,50 @@ function App() {
       <div className="bg-layer-4"></div>
 
       <header className="header">
-         <div className="header-container">
-           <Link to="/" style={{ textDecoration: 'none' }}>
-             <h1 className="logo-title">MEETDROP</h1>
-           </Link>
-           <div className="status-indicator-wrap">
-             {user || isAdmin ? (
-               <>
-                 <div className="status-indicator status-online"></div>
-                 <span className="status-text">{isAdmin ? 'Overseer' : 'Online'}</span>
-                 {!isAdmin && (
-                   <>
-                     <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                     <Link to="/profile/edit" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Edit Profile</Link>
-                     <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                     <Link to="/history" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>History</Link>
-                   </>
-                 )}
-                 <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                 <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red-500)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, padding: 0 }}>Logout</button>
-               </>
-             ) : (
-               <>
-                 <div className="status-indicator status-offline"></div>
-                 <span className="status-text">Offline</span>
-               </>
-             )}
-           </div>
-         </div>
+        <div className="header-container">
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <h1 className="logo-title">MEETDROP</h1>
+          </Link>
+          <div className="status-indicator-wrap">
+            {user || isAdmin ? (
+              <>
+                <div className="status-indicator status-online"></div>
+                <span className="status-text">{isAdmin ? 'Overseer' : 'Online'}</span>
+                {!isAdmin && (
+                  <>
+                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
+                    <Link to="/profile/edit" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Edit Profile</Link>
+                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
+                    <Link to="/history" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>History</Link>
+                  </>
+                )}
+                <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red-500)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, padding: 0 }}>Logout</button>
+              </>
+            ) : (
+              <>
+                <div className="status-indicator status-offline"></div>
+                <span className="status-text">Offline</span>
+              </>
+            )}
+          </div>
+        </div>
       </header>
 
       <main className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Routes>
           <Route path="/login" element={(!user && !isAdmin) ? <AuthScreens onLogin={handleLogin} /> : <Navigate to={isAdmin ? "/admin" : "/"} />} />
           <Route path="/register" element={(!user && !isAdmin) ? <AuthScreens onLogin={handleLogin} /> : <Navigate to="/" />} />
-          
+          <Route path="/complete-profile" element={<CompleteProfile onLogin={handleLogin} />} />
+
           {/* Protected Normal Routes */}
           <Route path="/" element={user ? <MainApp user={user} /> : <Navigate to="/login" />} />
           <Route path="/profile/edit" element={user ? <EditProfile user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
           <Route path="/history" element={user ? <HistoryView user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
-          
+
           {/* Protected Admin Route */}
           <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
-          
+
           <Route path="*" element={<Navigate to={user ? "/" : (isAdmin ? "/admin" : "/login")} />} />
         </Routes>
       </main>

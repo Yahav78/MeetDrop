@@ -17,7 +17,7 @@ const ADMIN_PASS = 'yv787878';
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { username, email, password, name, jobTitle, bio, githubUrl, linkedinUrl } = req.body;
+    const { username, email, password, firstName, lastName, jobTitle, bio, githubUrl, linkedinUrl } = req.body;
 
     // Check if user exists
     let user = await User.findOne({ $or: [{ email }, { username }] });
@@ -33,11 +33,13 @@ router.post('/register', async (req, res) => {
       username,
       email,
       password: hashedPassword,
-      name,
+      firstName,
+      lastName,
       jobTitle,
       bio,
       githubUrl,
-      linkedinUrl
+      linkedinUrl,
+      isProfileComplete: true
     });
 
     await user.save();
@@ -65,22 +67,23 @@ router.post('/google', async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-    const { sub: googleId, email, name, picture } = payload;
+    const { sub: googleId, email, given_name, family_name, picture } = payload;
 
     // Check if user exists
     let user = await User.findOne({ email });
 
     if (!user) {
       // Create a new user with google details
-      const username = email.split('@')[0] + Math.floor(Math.random() * 10000); // Generate unique username
-
       user = new User({
-        username,
         email,
-        name,
-        googleId
+        firstName: given_name || '',
+        lastName: family_name || '',
+        googleId,
+        isProfileComplete: false
         // password is left undefined as it's not required for google users
       });
+      // Temporary username, will be overwritten
+      user.username = `temp_${googleId}_${Date.now()}`;
       await user.save();
     } else if (!user.googleId) {
       // Link Google account to existing email user
@@ -96,7 +99,7 @@ router.post('/google', async (req, res) => {
     const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '5d' });
     const userObj = user.toObject();
     delete userObj.password;
-    res.json({ token: jwtToken, user: userObj, isAdmin: false });
+    res.json({ token: jwtToken, user: userObj, isAdmin: false, requiresProfileSetup: !user.isProfileComplete });
 
   } catch (error) {
     console.error('Google Auth Error:', error);
@@ -144,6 +147,57 @@ router.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Login Error:', error);
     res.status(500).json({ error: 'Server error during login' });
+  }
+});
+
+// GET /api/auth/check-username/:username
+router.get('/check-username/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const user = await User.findOne({ username });
+    res.json({ available: !user });
+  } catch (error) {
+    console.error('Username Check Error:', error);
+    res.status(500).json({ error: 'Server error checking username' });
+  }
+});
+
+// POST /api/auth/complete-profile
+router.post('/complete-profile', async (req, res) => {
+  try {
+    // Basic extraction from manual authorization header
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token provided' });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.user || !decoded.user.id) return res.status(401).json({ error: 'Invalid token' });
+
+    const { username, jobTitle, bio, githubUrl, linkedinUrl } = req.body;
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser && existingUser.id !== decoded.user.id) {
+      return res.status(400).json({ error: 'Username already taken' });
+    }
+
+    const user = await User.findById(decoded.user.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    user.username = username;
+    if (jobTitle) user.jobTitle = jobTitle;
+    if (bio) user.bio = bio;
+    if (githubUrl) user.githubUrl = githubUrl;
+    if (linkedinUrl) user.linkedinUrl = linkedinUrl;
+    user.isProfileComplete = true;
+
+    await user.save();
+
+    const userObj = user.toObject();
+    delete userObj.password;
+
+    res.json({ message: 'Profile completed successfully', user: userObj });
+  } catch (error) {
+    console.error('Complete Profile Error:', error);
+    res.status(500).json({ error: 'Server error completing profile' });
   }
 });
 

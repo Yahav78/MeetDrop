@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function EditProfile({ user, onUpdate }) {
-  const [formData, setFormData] = useState({ name: '', jobTitle: '', bio: '', githubUrl: '', linkedinUrl: '' });
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', jobTitle: '', bio: '', githubUrl: '', linkedinUrl: '' });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-       setFormData({
-         name: user.name || '',
-         jobTitle: user.jobTitle || '',
-         bio: user.bio || '',
-         githubUrl: user.githubUrl || '',
-         linkedinUrl: user.linkedinUrl || ''
-       });
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        bio: user.bio || '',
+        githubUrl: user.githubUrl || '',
+        linkedinUrl: user.linkedinUrl || ''
+      });
     }
   }, [user]);
 
@@ -46,11 +46,17 @@ export default function EditProfile({ user, onUpdate }) {
     <div className="form-container glass-panel animate-fade-in-up" style={{ marginTop: '2rem' }}>
       <h2 className="form-title">Edit Profile</h2>
       <p className="form-subtitle">Update your digital business card.</p>
-      
+
       <form onSubmit={handleSubmit} className="form-group-list">
-        <div className="form-group">
-          <label>Name *</label>
-          <input required name="name" value={formData.name} onChange={handleChange} className="form-input" />
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>First Name *</label>
+            <input required name="firstName" value={formData.firstName} onChange={handleChange} className="form-input" />
+          </div>
+          <div className="form-group" style={{ flex: 1 }}>
+            <label>Last Name *</label>
+            <input required name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" />
+          </div>
         </div>
         <div className="form-group">
           <label>Job Title</label>

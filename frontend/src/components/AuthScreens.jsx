@@ -9,7 +9,7 @@ export default function AuthScreens({ onLogin }) {
 
   const [formData, setFormData] = useState({
     username: '', email: '', password: '', // Auth
-    name: '', jobTitle: '', bio: '', githubUrl: '', linkedinUrl: '' // Profile
+    firstName: '', lastName: '', jobTitle: '', bio: '', githubUrl: '', linkedinUrl: '' // Profile
   });
 
   const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -62,11 +62,17 @@ export default function AuthScreens({ onLogin }) {
       const data = await res.json();
 
       if (res.ok) {
-        onLogin(data);
-        if (data.isAdmin) {
-          navigate('/admin');
+        if (data.requiresProfileSetup) {
+          // Temporarily store token so CompleteProfile can use it, but don't perform full `onLogin` yet.
+          localStorage.setItem('tempToken', data.token);
+          navigate('/complete-profile', { state: { googleUserData: data.user } });
         } else {
-          navigate('/');
+          onLogin(data);
+          if (data.isAdmin) {
+            navigate('/admin');
+          } else {
+            navigate('/');
+          }
         }
       } else {
         alert(data.error || 'Google Authentication failed');
@@ -107,9 +113,15 @@ export default function AuthScreens({ onLogin }) {
       <form onSubmit={handleSubmit} className="form-group-list">
         {!isLogin && (
           <>
-            <div className="form-group">
-              <label>Name *</label>
-              <input required name="name" value={formData.name} onChange={handleChange} className="form-input" placeholder="Jane Doe" />
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>First Name *</label>
+                <input required name="firstName" value={formData.firstName} onChange={handleChange} className="form-input" placeholder="Jane" />
+              </div>
+              <div className="form-group" style={{ flex: 1 }}>
+                <label>Last Name *</label>
+                <input required name="lastName" value={formData.lastName} onChange={handleChange} className="form-input" placeholder="Doe" />
+              </div>
             </div>
             <div className="form-group">
               <label>Email *</label>
