@@ -29,7 +29,7 @@ let isConnected = false;
 const connectDB = async () => {
   if (isConnected) return;
   try {
-    const mongoUri = process.env.MONGODB_URI;
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
 
     // Fallback to local in-memory DB if no URI is provided, avoiding Vercel
     if (!mongoUri && process.env.NODE_ENV !== 'production') {
