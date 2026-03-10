@@ -12,13 +12,14 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || origin.startsWith('http://localhost') || origin.includes('vercel.app')) {
+    if (!origin || origin.startsWith('http://localhost') || origin.endsWith('vercel.app')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 200 // Legacy browsers support
 }));
 app.use(express.json());
 

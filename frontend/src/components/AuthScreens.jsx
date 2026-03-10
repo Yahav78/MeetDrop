@@ -16,8 +16,8 @@ export default function AuthScreens({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    // Use an empty string fallback so Vercel uses the relative '/api' path as configured in vercel.json
+    const API_URL = import.meta.env.VITE_API_URL || '';
     const endpoint = isLogin ? `${API_URL}/api/auth/login` : `${API_URL}/api/auth/register`;
 
     try {
@@ -51,7 +51,8 @@ export default function AuthScreens({ onLogin }) {
 
   const handleGoogleSuccess = async (credentialResponse) => {
     setLoading(true);
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    // Use an empty string fallback so Vercel uses the relative '/api' path
+    const API_URL = import.meta.env.VITE_API_URL || '';
     try {
       const res = await fetch(`${API_URL}/api/auth/google`, {
         method: 'POST',
