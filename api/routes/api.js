@@ -44,8 +44,11 @@ router.get('/users/:id/history', async (req, res) => {
 
     const hiddenIds = requestingUser.hiddenConnections ? requestingUser.hiddenConnections.map(id => id.toString()) : [];
 
+    // Filter out hidden connections and anomalous missing users
+    const validConnections = connections.filter(conn => conn.user1_id && conn.user2_id);
+
     // Format the return array to just be a list of the *other* users
-    let history = connections.map(conn => {
+    let history = validConnections.map(conn => {
       // The matched user is whichever one is NOT the requester
       return conn.user1_id._id.toString() === userId ? conn.user2_id : conn.user1_id;
     });
@@ -136,17 +139,29 @@ router.get('/admin/users', isAuthenticated, isAdmin, async (req, res) => {
 // DELETE /api/admin/users/:id - Delete a user
 router.delete('/admin/users/:id', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    const userToDelete = await User.findById(req.params.id);
+    const userId = req.params.id;
+    const userToDelete = await User.findById(userId);
     if (!userToDelete) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Optional: Add logic here to remove user from others' favorites/history if needed,
-    // or rely on $pull / cleanup jobs elsewhere.
-    await User.findByIdAndDelete(req.params.id);
+    // Use $pull to remove this user from EVERYONE'S favorites and hiddenConnections arrays
+    await User.updateMany(
+      {},
+      { $pull: { favorites: userId, hiddenConnections: userId } }
+    );
+
+    // Delete any connection documents where this user was a participant
+    await Connection.deleteMany({
+      $or: [{ user1_id: userId }, { user2_id: userId }]
+    });
+
+    // Finally, wipe the target user entirely
+    await User.findByIdAndDelete(userId);
 
     res.json({ message: 'User deleted successfully' });
   } catch (err) {
+    console.error('Delete User Error:', err);
     res.status(500).json({ error: 'Server error deleting user' });
   }
 });
