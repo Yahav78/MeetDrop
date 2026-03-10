@@ -99,7 +99,7 @@ router.post('/google', async (req, res) => {
     const jwtToken = jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '5d' });
     const userObj = user.toObject();
     delete userObj.password;
-    res.json({ token: jwtToken, user: userObj, isAdmin: false, requiresProfileSetup: !user.isProfileComplete });
+    res.json({ token: jwtToken, user: userObj, isAdmin: user.role === 'admin', requiresProfileSetup: !user.isProfileComplete });
 
   } catch (error) {
     console.error('Google Auth Error:', error);
@@ -142,7 +142,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '5d' });
     const userObj = user.toObject();
     delete userObj.password;
-    res.json({ token, user: userObj, isAdmin: false });
+    res.json({ token, user: userObj, isAdmin: user.role === 'admin' });
 
   } catch (error) {
     console.error('Login Error:', error);

@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 const Connection = require('../models/Connection');
 const { handleMatchRequest } = require('../services/matchmaker');
+const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
 // GET /api/users/:id - Fetch profile
 router.get('/users/:id', async (req, res) => {
@@ -71,42 +72,42 @@ router.get('/users/:id/history', async (req, res) => {
 // POST /api/users/:id/favorites/:targetId - Add Favorite
 router.post('/users/:id/favorites/:targetId', async (req, res) => {
   try {
-     const user = await User.findByIdAndUpdate(
-       req.params.id, 
-       { $addToSet: { favorites: req.params.targetId } },
-       { new: true }
-     ).select('-password');
-     res.json(user);
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { favorites: req.params.targetId } },
+      { new: true }
+    ).select('-password');
+    res.json(user);
   } catch (err) {
-     res.status(500).json({ error: 'Failed to add favorite' });
+    res.status(500).json({ error: 'Failed to add favorite' });
   }
 });
 
 // DELETE /api/users/:id/favorites/:targetId - Remove Favorite
 router.delete('/users/:id/favorites/:targetId', async (req, res) => {
   try {
-     const user = await User.findByIdAndUpdate(
-       req.params.id, 
-       { $pull: { favorites: req.params.targetId } },
-       { new: true }
-     ).select('-password');
-     res.json(user);
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $pull: { favorites: req.params.targetId } },
+      { new: true }
+    ).select('-password');
+    res.json(user);
   } catch (err) {
-     res.status(500).json({ error: 'Failed to remove favorite' });
+    res.status(500).json({ error: 'Failed to remove favorite' });
   }
 });
 
 // POST /api/users/:id/history/hide/:targetId - Hide Connection
 router.post('/users/:id/history/hide/:targetId', async (req, res) => {
   try {
-     const user = await User.findByIdAndUpdate(
-       req.params.id, 
-       { $addToSet: { hiddenConnections: req.params.targetId } },
-       { new: true }
-     ).select('-password');
-     res.json(user);
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $addToSet: { hiddenConnections: req.params.targetId } },
+      { new: true }
+    ).select('-password');
+    res.json(user);
   } catch (err) {
-     res.status(500).json({ error: 'Failed to hide connection' });
+    res.status(500).json({ error: 'Failed to hide connection' });
   }
 });
 
@@ -123,14 +124,30 @@ router.post('/match', async (req, res) => {
 });
 
 // GET /api/admin/users - Get All Users for Admin Dashboard
-router.get('/admin/users', async (req, res) => {
+router.get('/admin/users', isAuthenticated, isAdmin, async (req, res) => {
   try {
-    // In a real app we would check the JWT middleware here to verify isAdmin === true.
-    // For MVP scope, we rely on UI hiding.
     const users = await User.find({}).select('-password').sort({ _id: -1 });
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: 'Server error fetching admin users' });
+  }
+});
+
+// DELETE /api/admin/users/:id - Delete a user
+router.delete('/admin/users/:id', isAuthenticated, isAdmin, async (req, res) => {
+  try {
+    const userToDelete = await User.findById(req.params.id);
+    if (!userToDelete) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Optional: Add logic here to remove user from others' favorites/history if needed,
+    // or rely on $pull / cleanup jobs elsewhere.
+    await User.findByIdAndDelete(req.params.id);
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error deleting user' });
   }
 });
 
