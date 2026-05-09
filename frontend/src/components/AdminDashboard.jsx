@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 export default function AdminDashboard() {
    const [users, setUsers] = useState([]);
    const [loading, setLoading] = useState(true);
+   const [orgForm, setOrgForm] = useState({ username: '', email: '', password: '', firstName: '', lastName: '' });
+   const [orgLoading, setOrgLoading] = useState(false);
    const navigate = useNavigate();
 
    useEffect(() => {
@@ -56,6 +58,34 @@ export default function AdminDashboard() {
       }
    };
 
+   const handleCreateOrganizer = async (e) => {
+      e.preventDefault();
+      setOrgLoading(true);
+      try {
+         const token = localStorage.getItem('token');
+         const res = await fetch('/api/admin/organizers', {
+            method: 'POST',
+            headers: { 
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(orgForm)
+         });
+         const data = await res.json();
+         if (res.ok) {
+            alert('Event Organizer created successfully!');
+            setOrgForm({ username: '', email: '', password: '', firstName: '', lastName: '' });
+            setUsers([data.user, ...users]);
+         } else {
+            alert(data.error || 'Failed to create organizer');
+         }
+      } catch (err) {
+         console.error('Failed to create organizer', err);
+         alert('Network error');
+      }
+      setOrgLoading(false);
+   };
+
    if (loading) return <div className="loading-title" style={{ marginTop: '5rem' }}>Loading Node Infrastructure...</div>;
 
    return (
@@ -102,7 +132,38 @@ export default function AdminDashboard() {
                   </tbody>
                </table>
             </div>
-         </div>
-      </div>
+
+             <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid var(--slate-700)' }}>
+                <h3 className="form-title" style={{ textAlign: 'left', margin: '0 0 1rem 0', fontSize: '1.25rem' }}>Create Event Organizer</h3>
+                <form onSubmit={handleCreateOrganizer} className="form-group-list" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                   <div className="form-group">
+                      <label>First Name</label>
+                      <input required className="form-input" value={orgForm.firstName} onChange={(e) => setOrgForm({...orgForm, firstName: e.target.value})} />
+                   </div>
+                   <div className="form-group">
+                      <label>Last Name</label>
+                      <input required className="form-input" value={orgForm.lastName} onChange={(e) => setOrgForm({...orgForm, lastName: e.target.value})} />
+                   </div>
+                   <div className="form-group">
+                      <label>Email</label>
+                      <input required type="email" className="form-input" value={orgForm.email} onChange={(e) => setOrgForm({...orgForm, email: e.target.value})} />
+                   </div>
+                   <div className="form-group">
+                      <label>Username</label>
+                      <input required className="form-input" value={orgForm.username} onChange={(e) => setOrgForm({...orgForm, username: e.target.value})} />
+                   </div>
+                   <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                      <label>Password</label>
+                      <input required type="password" className="form-input" value={orgForm.password} onChange={(e) => setOrgForm({...orgForm, password: e.target.value})} />
+                   </div>
+                   <div style={{ gridColumn: '1 / -1' }}>
+                      <button disabled={orgLoading} type="submit" className="btn-primary" style={{ marginTop: '1rem' }}>
+                         {orgLoading ? 'Creating...' : 'Create Organizer Account'}
+                      </button>
+                   </div>
+                </form>
+             </div>
+          </div>
+       </div>
    );
 }

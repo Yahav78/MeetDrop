@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
   bio: { type: String },
   githubUrl: { type: String },
   linkedinUrl: { type: String },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  role: { type: String, enum: ['user', 'admin', 'organizer'], default: 'user' },
   favorites: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   hiddenConnections: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });

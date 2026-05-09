@@ -9,6 +9,8 @@ import ConnectButton from './components/ConnectButton';
 import RadarLoading from './components/RadarLoading';
 import DigitalCard from './components/DigitalCard';
 import ConfirmationCard from './components/ConfirmationCard';
+import OrganizerDashboard from './components/OrganizerDashboard';
+import EventsTab from './components/EventsTab';
 
 function MainApp({ user }) {
   const [matchingState, setMatchingState] = useState('IDLE'); // States: IDLE, MATCHING, PENDING_CONFIRMATION, WAITING_FOR_OTHER, SUCCESS, ERROR
@@ -131,6 +133,7 @@ function MainApp({ user }) {
 function App() {
   const [user, setUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,8 +143,9 @@ function App() {
       // Basic auth restore from localstorage for MVP
       const storedUser = localStorage.getItem('user');
       const storedAdmin = localStorage.getItem('isAdmin') === 'true';
+      const storedOrganizer = localStorage.getItem('isOrganizer') === 'true';
       
-      if (storedUser && !storedAdmin) {
+      if (storedUser && !storedAdmin && !storedOrganizer) {
         try {
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser); // Optimistic load
@@ -155,6 +159,10 @@ function App() {
             if (!latestUser.hiddenConnections) latestUser.hiddenConnections = [];
             setUser(latestUser);
             localStorage.setItem('user', JSON.stringify(latestUser));
+            if (latestUser.role === 'organizer') {
+              setIsOrganizer(true);
+              localStorage.setItem('isOrganizer', 'true');
+            }
           }
         } catch (err) {
           console.error('Error fetching latest user data:', err);
@@ -162,6 +170,7 @@ function App() {
       }
       
       setIsAdmin(storedAdmin);
+      setIsOrganizer(storedOrganizer);
       setLoading(false);
     };
 
@@ -172,6 +181,11 @@ function App() {
     if (data.isAdmin) {
       setIsAdmin(true);
       localStorage.setItem('isAdmin', 'true');
+    } else if (data.user?.role === 'organizer') {
+      setIsOrganizer(true);
+      localStorage.setItem('isOrganizer', 'true');
+      setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
     } else {
       const u = data.user;
       if (!u.favorites) u.favorites = [];
@@ -185,8 +199,10 @@ function App() {
   const handleLogout = () => {
     setUser(null);
     setIsAdmin(false);
+    setIsOrganizer(false);
     localStorage.removeItem('user');
     localStorage.removeItem('isAdmin');
+    localStorage.removeItem('isOrganizer');
     localStorage.removeItem('token');
     navigate('/login');
   };
@@ -213,16 +229,24 @@ function App() {
             <h1 className="logo-title">MEETDROP</h1>
           </Link>
           <div className="status-indicator-wrap">
-            {user || isAdmin ? (
+            {user || isAdmin || isOrganizer ? (
               <>
                 <div className="status-indicator status-online"></div>
-                <span className="status-text">{isAdmin ? 'Overseer' : 'Online'}</span>
-                {!isAdmin && (
+                <span className="status-text">{isAdmin ? 'Overseer' : (isOrganizer ? 'Organizer' : 'Online')}</span>
+                {!isAdmin && !isOrganizer && (
                   <>
                     <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
                     <Link to="/profile/edit" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Edit Profile</Link>
                     <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
                     <Link to="/history" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>History</Link>
+                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
+                    <Link to="/events" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Events</Link>
+                  </>
+                )}
+                {isOrganizer && (
+                  <>
+                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
+                    <Link to="/organizer" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Dashboard</Link>
                   </>
                 )}
                 <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
@@ -245,14 +269,18 @@ function App() {
           <Route path="/complete-profile" element={<CompleteProfile onLogin={handleLogin} />} />
 
           {/* Protected Normal Routes */}
-          <Route path="/" element={user ? <MainApp user={user} /> : <Navigate to="/login" />} />
+          <Route path="/" element={user ? (isOrganizer ? <Navigate to="/organizer" /> : <MainApp user={user} />) : <Navigate to="/login" />} />
           <Route path="/profile/edit" element={user ? <EditProfile user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
           <Route path="/history" element={user ? <HistoryView user={user} onUpdate={updateLocalUser} /> : <Navigate to="/login" />} />
+          <Route path="/events" element={user ? <EventsTab currentUser={user} /> : <Navigate to="/login" />} />
 
           {/* Protected Admin Route */}
           <Route path="/admin" element={isAdmin ? <AdminDashboard /> : <Navigate to="/login" />} />
 
-          <Route path="*" element={<Navigate to={user ? "/" : (isAdmin ? "/admin" : "/login")} />} />
+          {/* Protected Organizer Route */}
+          <Route path="/organizer" element={isOrganizer ? <OrganizerDashboard /> : <Navigate to="/login" />} />
+
+          <Route path="*" element={<Navigate to={user ? (isOrganizer ? "/organizer" : "/") : (isAdmin ? "/admin" : "/login")} />} />
         </Routes>
       </main>
     </div>
