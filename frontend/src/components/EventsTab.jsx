@@ -93,53 +93,82 @@ export default function EventsTab({ currentUser }) {
     setConnectingId(null);
   };
 
-  if (loading) return <div className="loading-title">Loading Events...</div>;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] space-y-4">
+        <div className="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
+        <h3 className="text-slate-400 font-display font-bold tracking-widest uppercase text-sm">Scanning Global Nodes...</h3>
+      </div>
+    );
+  }
 
   return (
-    <div className="animate-fade-in-up w-full" style={{ maxWidth: '40rem', marginTop: '2rem' }}>
-      <div className="glass-panel" style={{ padding: '2rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div>
-            <h2 className="form-title" style={{ textAlign: 'left', margin: 0 }}>AVAILABLE EVENTS</h2>
-            <p className="form-subtitle" style={{ textAlign: 'left', margin: 0 }}>Discover conferences and meetups</p>
-          </div>
-          <button onClick={handleSortByDistance} className="btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem' }}>
-            Sort by Distance
-          </button>
+    <div className="max-w-3xl w-full mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-display font-black text-white tracking-tight">Events</h2>
+          <p className="text-slate-400 mt-1">Discover and join physical networking nodes.</p>
         </div>
-
-        {events.length === 0 ? (
-          <p style={{ textAlign: 'center', color: 'var(--slate-500)', padding: '2rem' }}>No active events found.</p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {events.map((ev) => {
-              const isFull = ev.connectedUsers.length >= ev.maxCapacity;
-              const isJoined = ev.connectedUsers.includes(currentUser._id);
-              const distance = userLocation ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, ev.lat, ev.lon).toFixed(1) : null;
-
-              return (
-                <div key={ev._id} className="history-card" style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h4 style={{ margin: 0, color: 'var(--white)', fontSize: '1.1rem' }}>{ev.name}</h4>
-                    <p style={{ margin: '0.25rem 0', color: 'var(--slate-400)', fontSize: '0.85rem' }}>📍 {ev.locationText} {distance && `(${distance} km away)`}</p>
-                    <p style={{ margin: 0, fontSize: '0.75rem', color: isFull ? 'var(--red-400)' : 'var(--emerald-400)' }}>
-                      {ev.maxCapacity - ev.connectedUsers.length} spots remaining
-                    </p>
-                  </div>
-                  <button 
-                    disabled={isFull || isJoined || connectingId === ev._id}
-                    onClick={() => handleConnect(ev._id)}
-                    className={isJoined ? "btn-secondary" : "btn-primary"}
-                    style={{ width: 'auto', padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
-                  >
-                    {connectingId === ev._id ? '...' : (isJoined ? 'Joined' : (isFull ? 'Full' : 'Connect'))}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <button 
+          onClick={handleSortByDistance} 
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all active:scale-95"
+        >
+          Sort by Distance
+        </button>
       </div>
+
+      {events.length === 0 ? (
+        <div className="glass rounded-[2rem] p-12 text-center text-slate-500 border-white/5 italic">
+          No active networking events found in your vicinity.
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {events.map((ev) => {
+            const isFull = ev.connectedUsers.length >= ev.maxCapacity;
+            const isJoined = ev.connectedUsers.includes(currentUser._id);
+            const distance = userLocation ? getDistanceFromLatLonInKm(userLocation.lat, userLocation.lon, ev.lat, ev.lon).toFixed(1) : null;
+
+            return (
+              <div key={ev._id} className="group glass rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-all border-white/5">
+                <div className="space-y-1">
+                  <h4 className="text-xl font-bold text-white group-hover:text-brand-400 transition-colors">{ev.name}</h4>
+                  <div className="flex items-center space-x-3 text-slate-400 text-sm">
+                    <span className="flex items-center">
+                       <svg className="w-4 h-4 mr-1 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                       </svg>
+                       {ev.locationText}
+                    </span>
+                    {distance && (
+                      <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-bold text-slate-500 uppercase">
+                         {distance} km
+                      </span>
+                    )}
+                  </div>
+                  <div className={`text-xs font-bold uppercase tracking-widest pt-1 ${isFull ? 'text-red-500/80' : 'text-emerald-500/80'}`}>
+                    {ev.maxCapacity - ev.connectedUsers.length} Slots Available
+                  </div>
+                </div>
+
+                <button 
+                  disabled={isFull || isJoined || connectingId === ev._id}
+                  onClick={() => handleConnect(ev._id)}
+                  className={`px-8 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg ${
+                    isJoined 
+                    ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+                    : (isFull ? 'bg-slate-800 text-slate-500 border border-white/5 cursor-not-allowed' : 'bg-brand-500 hover:bg-brand-600 text-white shadow-brand-500/20')
+                  }`}
+                >
+                  {connectingId === ev._id ? (
+                    <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin mx-auto"></div>
+                  ) : (isJoined ? 'Joined' : (isFull ? 'Registry Full' : 'Initialize Connection'))}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
+
