@@ -88,7 +88,9 @@ function MainApp({ user }) {
             if (conn.status === 'accepted') {
               setMatchingState('SUCCESS');
             } else if (conn.status === 'rejected') {
-              setErrorMsg('The other person declined the match.');
+              // If we are here, it means the OTHER person rejected the connection
+              // because the person who rejects calls handleDecline which sets state to IDLE immediately
+              setErrorMsg(`${matchedUser?.firstName || 'The other person'} declined the match.`);
               setMatchingState('ERROR');
             }
           }
@@ -96,7 +98,7 @@ function MainApp({ user }) {
       }, 2000);
     }
     return () => clearInterval(interval);
-  }, [matchingState, connectionId]);
+  }, [matchingState, connectionId, matchedUser]);
 
   return (
     <>
@@ -188,10 +190,10 @@ function MainApp({ user }) {
               </div>
             </div>
           </div>
-          
-          <p className="text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Code: NODE_SYNC_TIMEOUT</p>
         </div>
       )}
+
+
 
     </>
   );
