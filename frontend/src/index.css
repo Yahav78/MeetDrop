@@ -46,6 +46,10 @@
   .text-white:not(button *, .bg-brand-500 *, .bg-slate-800 *, .bg-slate-900 *) {
     color: var(--text-primary) !important;
   }
+
+  input, textarea, select {
+    color: var(--text-primary) !important;
+  }
 }
 
 /* Glassmorphism utility */

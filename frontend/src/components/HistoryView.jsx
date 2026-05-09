@@ -182,7 +182,7 @@ export default function HistoryView({ user, onUpdate }) {
                     <p className="text-brand-400 text-sm font-semibold truncate">{connUser.jobTitle || 'Professional'}</p>
                   </div>
 
-                  <div className="flex items-center space-x-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center space-x-1 opacity-100 xl:opacity-0 xl:group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={(e) => { e.stopPropagation(); setActiveChat(historyItem); }} 
                       className="p-2 text-slate-400 hover:text-brand-400 hover:bg-brand-500/10 rounded-lg transition-all"
