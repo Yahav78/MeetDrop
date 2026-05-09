@@ -323,56 +323,51 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-110 transition-transform">
+              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-110 transition-transform flex-shrink-0">
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h1 className="text-xl font-display font-bold tracking-tight text-white group-hover:text-brand-400 transition-colors">MEETDROP</h1>
+              <h1 className="text-lg sm:text-xl font-display font-bold tracking-tight text-white group-hover:text-brand-400 transition-colors hidden xs:block">MEETDROP</h1>
             </Link>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {/* Theme Toggle */}
               <button 
                 onClick={toggleTheme}
-                className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:scale-110 transition-all border border-slate-200 dark:border-white/5 shadow-sm"
+                className="p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:scale-110 transition-all border border-slate-200 dark:border-white/5 shadow-sm"
                 title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
               >
                 {isDark ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                   </svg>
                 )}
               </button>
 
               {user || isAdmin || isOrganizer ? (
-                <div className="flex items-center space-x-1 sm:space-x-3 text-xs sm:text-sm font-medium">
-                  <div className="hidden sm:flex items-center px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
-                    {isAdmin ? 'Overseer' : (isOrganizer ? 'Organizer' : 'Online')}
-                  </div>
-
+                <div className="flex items-center space-x-2 sm:space-x-3 text-[10px] sm:text-sm font-medium">
                   {!isAdmin && !isOrganizer && (
-                    <nav className="flex items-center space-x-1 sm:space-x-4">
-                      <Link to="/profile/edit" className="text-slate-400 hover:text-white transition-colors py-1">Profile</Link>
-                      <Link to="/history" className="text-slate-400 hover:text-white transition-colors py-1">History</Link>
-                      <Link to="/events" className="text-slate-400 hover:text-white transition-colors py-1">Events</Link>
+                    <nav className="flex items-center space-x-2 sm:space-x-4">
+                      <Link to="/profile/edit" className="text-slate-500 dark:text-slate-400 hover:text-brand-500 dark:hover:text-white transition-colors py-1">Profile</Link>
+                      <Link to="/history" className="text-slate-500 dark:text-slate-400 hover:text-brand-500 dark:hover:text-white transition-colors py-1">History</Link>
+                      <Link to="/events" className="text-slate-500 dark:text-slate-400 hover:text-brand-500 dark:hover:text-white transition-colors py-1">Events</Link>
                     </nav>
                   )}
                   
                   {isOrganizer && (
-                    <Link to="/organizer" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
+                    <Link to="/organizer" className="text-slate-500 dark:text-slate-400 hover:text-brand-500 dark:hover:text-white transition-colors">Dashboard</Link>
                   )}
 
-                  <div className="w-px h-4 bg-slate-700/50"></div>
+                  <div className="w-px h-3 bg-slate-200 dark:bg-slate-700/50"></div>
                   
                   <button 
                     onClick={handleLogout} 
-                    className="text-red-400 hover:text-red-300 transition-colors font-bold uppercase text-[10px] sm:text-xs tracking-wider"
+                    className="text-red-500 hover:text-red-400 transition-colors font-black uppercase text-[10px] tracking-wider"
                   >
                     Logout
                   </button>
