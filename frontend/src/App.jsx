@@ -69,14 +69,36 @@ function App() {
   const location = useLocation();
 
   useEffect(() => {
-    // Basic auth restore from localstorage for MVP
-    const storedUser = localStorage.getItem('user');
-    const storedAdmin = localStorage.getItem('isAdmin') === 'true';
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsAdmin(storedAdmin);
-    setLoading(false);
+    const initAuth = async () => {
+      // Basic auth restore from localstorage for MVP
+      const storedUser = localStorage.getItem('user');
+      const storedAdmin = localStorage.getItem('isAdmin') === 'true';
+      
+      if (storedUser && !storedAdmin) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser); // Optimistic load
+          
+          // Fetch latest data from backend to prevent stale data across devices
+          const API_URL = import.meta.env.VITE_API_URL || '';
+          const res = await fetch(`${API_URL}/api/users/${parsedUser._id}`);
+          if (res.ok) {
+            const latestUser = await res.json();
+            if (!latestUser.favorites) latestUser.favorites = [];
+            if (!latestUser.hiddenConnections) latestUser.hiddenConnections = [];
+            setUser(latestUser);
+            localStorage.setItem('user', JSON.stringify(latestUser));
+          }
+        } catch (err) {
+          console.error('Error fetching latest user data:', err);
+        }
+      }
+      
+      setIsAdmin(storedAdmin);
+      setLoading(false);
+    };
+
+    initAuth();
   }, []);
 
   const handleLogin = (data) => {
