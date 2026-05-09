@@ -161,11 +161,8 @@ export default function HistoryView({ user, onUpdate }) {
                 <div
                   key={idx}
                   onClick={() => setSelectedUser(connUser)}
-                  className={`group relative glass rounded-2xl p-4 flex items-center space-x-4 cursor-pointer hover:bg-white/[0.03] transition-all hover:translate-x-1 ${isFav ? 'border-brand-500/30 bg-brand-500/5' : ''}`}
+                  className={`group relative glass rounded-2xl p-4 flex items-center space-x-4 cursor-pointer hover:bg-white/[0.03] transition-all hover:translate-x-1`}
                 >
-                  {isFav && (
-                    <div className="absolute top-0 right-12 bottom-0 w-1 bg-brand-500 rounded-l-full"></div>
-                  )}
                   
                   <div className="relative">
                     <div className="w-14 h-14 bg-slate-800 rounded-xl flex items-center justify-center text-xl font-display font-bold text-slate-400 group-hover:text-brand-400 transition-colors border border-white/5">

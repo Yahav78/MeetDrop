@@ -38,7 +38,7 @@ export default function DigitalCard({ user, onReset }) {
 
            {/* Bio Section */}
            {user.bio && (
-             <div className="w-full bg-slate-900/40 rounded-2xl p-4 border border-white/5 mb-8 italic text-slate-400 text-center text-sm leading-relaxed">
+             <div className="w-full bg-slate-100 dark:bg-slate-900/40 rounded-2xl p-4 border border-slate-200 dark:border-white/5 mb-8 italic text-[var(--text-secondary)] text-center text-sm leading-relaxed">
                 &ldquo;{user.bio}&rdquo;
              </div>
            )}
