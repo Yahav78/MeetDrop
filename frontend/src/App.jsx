@@ -328,7 +328,7 @@ function App() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h1 className="text-lg sm:text-xl font-display font-bold tracking-tight text-white group-hover:text-brand-400 transition-colors hidden xs:block">MEETDROP</h1>
+              <h1 className="text-lg sm:text-xl font-display font-black tracking-tight text-[var(--text-primary)] group-hover:text-brand-500 transition-colors hidden xs:block uppercase">MEETDROP</h1>
             </Link>
 
             <div className="flex items-center space-x-2 sm:space-x-4">

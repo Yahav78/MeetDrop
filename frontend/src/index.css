@@ -36,6 +36,16 @@
   body {
     @apply bg-[var(--bg-dark)] text-[var(--text-primary)] font-sans transition-colors duration-300;
   }
+  
+  /* Titles and labels that were hardcoded to white now use the theme variable */
+  h1, h2, h3, h4, .title-text {
+    @apply text-[var(--text-primary)] transition-colors duration-300;
+  }
+
+  /* Force override for legacy text-white on titles in light mode */
+  .text-white:not(button *, .bg-brand-500 *, .bg-slate-800 *, .bg-slate-900 *) {
+    color: var(--text-primary) !important;
+  }
 }
 
 /* Glassmorphism utility */
