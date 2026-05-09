@@ -92,8 +92,8 @@ export default function AuthScreens({ onLogin }) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
           </svg>
         </div>
-        <h2 className="text-3xl font-bold tracking-tight text-white">MeetDrop</h2>
-        <p className="text-slate-400 mt-2 text-center">{isLogin ? 'Authenticate to connect' : 'Create your network identity'}</p>
+        <h2 className="text-3xl font-display font-black text-[var(--text-primary)] tracking-tight">MeetDrop</h2>
+        <p className="text-[var(--text-secondary)] mt-2 text-center font-medium">{isLogin ? 'Authenticate to connect' : 'Create your network identity'}</p>
       </div>
 
       <div className="flex justify-center mb-6">
@@ -130,12 +130,12 @@ export default function AuthScreens({ onLogin }) {
           </>
         )}
         <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Username</label>
-          <input required name="username" value={formData.username} onChange={handleChange} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all" placeholder="jdoe99" />
+          <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">Username</label>
+          <input required name="username" value={formData.username} onChange={handleChange} className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[var(--text-primary)] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all" placeholder="jdoe99" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Password</label>
-          <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all" placeholder="••••••••" />
+          <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">Password</label>
+          <input required type="password" name="password" value={formData.password} onChange={handleChange} className="w-full bg-white dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-[var(--text-primary)] placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500/50 focus:border-brand-500 transition-all" placeholder="••••••••" />
         </div>
 
         {!isLogin && (
