@@ -102,7 +102,6 @@ export default function OrganizerDashboard() {
             <h2 className="form-title" style={{ textAlign: 'left', margin: 0, color: 'var(--amber-400)' }}>ORGANIZER DASHBOARD</h2>
             <p className="form-subtitle" style={{ textAlign: 'left', margin: 0 }}>Manage your events and participants</p>
           </div>
-          <button onClick={handleLogout} className="btn-secondary" style={{ padding: '0.5rem 1rem' }}>Logout</button>
         </div>
 
         <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
