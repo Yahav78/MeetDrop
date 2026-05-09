@@ -8,6 +8,7 @@ export default function HistoryView({ user, onUpdate }) {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeChat, setActiveChat] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -103,13 +104,31 @@ export default function HistoryView({ user, onUpdate }) {
       </div>
       <p className="form-subtitle" style={{ textAlign: 'left', marginTop: '0.5rem' }}>People you've networked with.</p>
 
+      {history.length > 0 && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <input
+            type="text"
+            className="form-input"
+            placeholder="Search connections..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ marginBottom: '1rem' }}
+          />
+        </div>
+      )}
+
       {history.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
           <p style={{ color: 'var(--slate-500)' }}>You haven't made any connections yet.</p>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-          {history.map((historyItem, idx) => {
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+          {history
+            .filter(item => {
+              const fullName = `${item.user.firstName} ${item.user.lastName}`.toLowerCase();
+              return fullName.includes(searchTerm.toLowerCase());
+            })
+            .map((historyItem, idx) => {
             const connUser = historyItem.user;
             const connectionId = historyItem.connectionId;
             const isFav = user.favorites?.includes(connUser._id);
