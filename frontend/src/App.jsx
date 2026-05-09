@@ -204,8 +204,34 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isDark, setIsDark] = useState(true); // Default to dark as requested
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Theme initialization
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setIsDark(false);
+      document.documentElement.classList.remove('dark');
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newDark = !isDark;
+    setIsDark(newDark);
+    if (newDark) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
 
   useEffect(() => {
     const initAuth = async () => {
@@ -286,7 +312,7 @@ function App() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-brand-500/30">
+    <div className={`min-h-screen bg-[var(--bg-dark)] text-[var(--text-primary)] selection:bg-brand-500/30`}>
       {/* Dynamic Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-600/10 blur-[120px] rounded-full animate-pulse"></div>
@@ -306,6 +332,23 @@ function App() {
             </Link>
 
             <div className="flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <button 
+                onClick={toggleTheme}
+                className="p-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl hover:scale-110 transition-all border border-slate-200 dark:border-white/5 shadow-sm"
+                title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              >
+                {isDark ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                )}
+              </button>
+
               {user || isAdmin || isOrganizer ? (
                 <div className="flex items-center space-x-1 sm:space-x-3 text-xs sm:text-sm font-medium">
                   <div className="hidden sm:flex items-center px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
