@@ -113,19 +113,38 @@ function MainApp({ user }) {
       )}
       {matchingState === 'SUCCESS' && <DigitalCard user={matchedUser} onReset={() => setMatchingState('IDLE')} />}
       {matchingState === 'ERROR' && (
-        <div className="error-container">
-          <div className="error-icon-wrapper">
-            <svg className="error-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+        <div className="max-w-md w-full mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-500">
+          <div className="glass rounded-[2.5rem] p-10 border-red-500/10 shadow-2xl text-center relative overflow-hidden group">
+            {/* Background Danger Glow */}
+            <div className="absolute -inset-24 bg-red-500/5 blur-[80px] rounded-full group-hover:bg-red-500/10 transition-all"></div>
+            
+            <div className="relative space-y-6">
+              <div className="w-20 h-20 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto text-red-500 shadow-lg shadow-red-500/5">
+                <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              
+              <div className="space-y-2">
+                <h2 className="text-2xl font-display font-black text-white tracking-tight">Sync Interrupted</h2>
+                <p className="text-slate-400 text-sm leading-relaxed">{errorMsg || "We couldn't establish a secure connection at this time."}</p>
+              </div>
+
+              <div className="pt-4">
+                <button 
+                  onClick={() => setMatchingState('IDLE')} 
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-xl border border-white/5 transition-all active:scale-[0.98] shadow-xl"
+                >
+                  Return to Radar
+                </button>
+              </div>
+            </div>
           </div>
-          <div className="text-center">
-            <h2 className="error-title">Connection Failed</h2>
-            <p className="error-desc">{errorMsg}</p>
-            <button onClick={() => setMatchingState('IDLE')} className="btn-secondary">Try again</button>
-          </div>
+          
+          <p className="text-center text-[10px] font-black text-slate-600 uppercase tracking-[0.3em]">Code: NODE_SYNC_TIMEOUT</p>
         </div>
       )}
+
     </>
   );
 }
