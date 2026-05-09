@@ -106,11 +106,59 @@ function MainApp({ user }) {
         <ConfirmationCard user={matchedUser} onAccept={handleAccept} onDecline={handleDecline} />
       )}
       {matchingState === 'WAITING_FOR_OTHER' && (
-        <div className="radar-container animate-fade-in-up">
-          <div className="radar-sweep" style={{ animationDuration: '4s' }}></div>
-          <h3 className="loading-title">Waiting for response...</h3>
+        <div className="max-w-md w-full mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="glass rounded-[2.5rem] p-10 border-brand-500/10 shadow-2xl text-center relative overflow-hidden group">
+            {/* Pulsing Sync Glow */}
+            <div className="absolute -inset-24 bg-brand-500/5 blur-[80px] rounded-full animate-pulse"></div>
+            
+            <div className="relative space-y-8">
+              {/* Spinning Sync Icon */}
+              <div className="relative w-24 h-24 mx-auto">
+                <div className="absolute inset-0 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
+                <div className="absolute inset-4 border-2 border-brand-500/10 border-b-brand-500/40 rounded-full animate-[spin_3s_linear_infinite_reverse]"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                   <svg className="w-8 h-8 text-brand-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                   </svg>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h3 className="text-2xl font-display font-black text-white tracking-tight italic">Awaiting Confirmation</h3>
+                <p className="text-slate-400 text-sm leading-relaxed">
+                  We've notified <span className="text-white font-bold">{matchedUser?.firstName}</span>. <br/> 
+                  Stand by while the secure handshake completes.
+                </p>
+              </div>
+
+              {/* Matched User Preview */}
+              <div className="bg-slate-900/50 border border-white/5 rounded-2xl p-4 flex items-center space-x-4">
+                 <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center text-brand-500 font-bold border border-brand-500/20">
+                    {matchedUser?.firstName?.charAt(0)}
+                 </div>
+                 <div className="text-left flex-1 min-w-0">
+                    <div className="text-sm font-bold text-white truncate">{matchedUser?.firstName} {matchedUser?.lastName}</div>
+                    <div className="text-[10px] text-slate-500 uppercase tracking-widest truncate">{matchedUser?.jobTitle || 'Pro Member'}</div>
+                 </div>
+              </div>
+
+              <div className="flex items-center justify-center space-x-2">
+                 <div className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                 <div className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                 <div className="w-1.5 h-1.5 bg-brand-500 rounded-full animate-bounce"></div>
+              </div>
+            </div>
+          </div>
+          
+          <button 
+            onClick={handleDecline}
+            className="w-full text-slate-500 hover:text-red-400 text-[10px] font-black uppercase tracking-[0.3em] transition-colors"
+          >
+            Cancel Handshake
+          </button>
         </div>
       )}
+
       {matchingState === 'SUCCESS' && <DigitalCard user={matchedUser} onReset={() => setMatchingState('IDLE')} />}
       {matchingState === 'ERROR' && (
         <div className="max-w-md w-full mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -126,7 +174,7 @@ function MainApp({ user }) {
               </div>
               
               <div className="space-y-2">
-                <h2 className="text-2xl font-display font-black text-white tracking-tight">Match was not found</h2>
+                <h2 className="text-2xl font-display font-black text-white tracking-tight">Was not able to connect</h2>
                 <p className="text-slate-400 text-sm leading-relaxed">{errorMsg || "We couldn't establish a secure connection at this time."}</p>
               </div>
 

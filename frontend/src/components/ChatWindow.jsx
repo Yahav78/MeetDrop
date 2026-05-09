@@ -59,38 +59,55 @@ export default function ChatWindow({ connectionId, currentUser, otherUser, onClo
   };
 
   return (
-    <div className="form-container glass-panel animate-fade-in-up w-full" style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', height: '600px', padding: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        <div>
-          <h2 className="form-title" style={{ margin: 0, textAlign: 'left', fontSize: '1.25rem' }}>Chat with {otherUser.firstName}</h2>
-          <p className="form-subtitle" style={{ textAlign: 'left', marginTop: '0.25rem', fontSize: '0.8rem' }}>Recent messages (Max 5)</p>
+    <div className="max-w-2xl w-full mx-auto glass rounded-[2.5rem] border-white/5 shadow-2xl flex flex-col h-[600px] overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Header */}
+      <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 bg-brand-500/10 rounded-xl flex items-center justify-center text-brand-500 font-bold border border-brand-500/20">
+            {otherUser.firstName?.charAt(0)}
+          </div>
+          <div>
+            <h2 className="text-lg font-display font-bold text-white leading-none">Chat with {otherUser.firstName}</h2>
+            <div className="flex items-center mt-1">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse mr-2"></div>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Secure Line Active</span>
+            </div>
+          </div>
         </div>
-        <button onClick={onClose} className="btn-secondary" style={{ width: 'auto', padding: '0.5rem 1rem' }}>Close</button>
+        <button 
+          onClick={onClose} 
+          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/5 rounded-xl text-xs font-bold uppercase tracking-widest transition-all active:scale-95"
+        >
+          Close
+        </button>
       </div>
 
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem', padding: '0.5rem' }}>
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
         {loading ? (
-          <div style={{ textAlign: 'center', color: 'var(--slate-400)' }}>Loading chat...</div>
+          <div className="flex flex-col items-center justify-center h-full space-y-2 opacity-50">
+             <div className="w-6 h-6 border-2 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
+             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Fetching Signals</span>
+          </div>
         ) : messages.length === 0 ? (
-          <div style={{ textAlign: 'center', color: 'var(--slate-500)', margin: 'auto 0' }}>Say hi to start the conversation!</div>
+          <div className="flex items-center justify-center h-full italic text-slate-500 text-sm">
+             Send a secure handshake to begin...
+          </div>
         ) : (
           messages.map((msg, idx) => {
             const isMe = msg.sender === currentUser._id;
             return (
-              <div key={idx} style={{ alignSelf: isMe ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-                <div style={{
-                  padding: '0.75rem 1rem',
-                  borderRadius: '1rem',
-                  backgroundColor: isMe ? 'var(--blue-600)' : 'rgba(30,41,59,0.8)',
-                  color: 'white',
-                  borderBottomRightRadius: isMe ? '0' : '1rem',
-                  borderBottomLeftRadius: isMe ? '1rem' : '0',
-                }}>
+              <div key={idx} className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-1`}>
+                <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                  isMe 
+                  ? 'bg-brand-500 text-white rounded-tr-none' 
+                  : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'
+                }`}>
                   {msg.text}
                 </div>
-                <div style={{ fontSize: '0.65rem', color: 'var(--slate-400)', marginTop: '0.25rem', textAlign: isMe ? 'right' : 'left' }}>
+                <span className="text-[9px] font-bold text-slate-600 uppercase tracking-tighter mt-1.5 px-1">
                   {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </div>
+                </span>
               </div>
             );
           })
@@ -98,26 +115,19 @@ export default function ChatWindow({ connectionId, currentUser, otherUser, onClo
         <div ref={messagesEndRef} />
       </div>
 
-      <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-        <p style={{ fontSize: '0.75rem', color: 'var(--slate-400)', marginBottom: '0.5rem' }}>Quick Replies:</p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      {/* Input Area / Quick Replies */}
+      <div className="p-6 bg-slate-900/40 border-t border-white/5">
+        <div className="mb-3 flex items-center space-x-2">
+           <svg className="w-3 h-3 text-brand-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Quick Relays</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
           {PREDEFINED_MESSAGES.map((text, idx) => (
             <button
               key={idx}
               onClick={() => sendMessage(text)}
               disabled={sending}
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: 'var(--emerald-400)',
-                padding: '0.5rem 0.75rem',
-                borderRadius: '9999px',
-                fontSize: '0.8rem',
-                cursor: sending ? 'wait' : 'pointer',
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(16, 185, 129, 0.1)'}
-              onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+              className="px-4 py-2.5 bg-white/[0.03] hover:bg-brand-500/10 border border-white/5 hover:border-brand-500/30 text-brand-400 rounded-xl text-xs font-bold transition-all active:scale-95 disabled:opacity-50"
             >
               {text}
             </button>
@@ -127,3 +137,4 @@ export default function ChatWindow({ connectionId, currentUser, otherUser, onClo
     </div>
   );
 }
+
