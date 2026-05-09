@@ -7,6 +7,13 @@ const connectionSchema = new mongoose.Schema({
     lat: { type: Number, required: true },
     lon: { type: Number, required: true }
   },
+  status: { type: String, enum: ['pending', 'accepted', 'rejected'], default: 'pending' },
+  acceptedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  messages: [{
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    text: { type: String, required: true },
+    timestamp: { type: Date, default: Date.now }
+  }],
   timestamp: { type: Date, default: Date.now }
 });
 

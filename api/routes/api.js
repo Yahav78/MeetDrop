@@ -37,32 +37,33 @@ router.get('/users/:id/history', async (req, res) => {
     const userId = req.params.id;
     const requestingUser = await User.findById(userId);
 
-    // Find connections where user is either user1 or user2
+    // Find connections where user is either user1 or user2, and status is accepted
     const connections = await Connection.find({
-      $or: [{ user1_id: userId }, { user2_id: userId }]
+      $or: [{ user1_id: userId }, { user2_id: userId }],
+      status: 'accepted'
     }).populate('user1_id', '-password').populate('user2_id', '-password').sort({ timestamp: -1 });
 
     const hiddenIds = requestingUser.hiddenConnections ? requestingUser.hiddenConnections.map(id => id.toString()) : [];
 
-    // Filter out hidden connections and anomalous missing users
+    // Filter out anomalous missing users
     const validConnections = connections.filter(conn => conn.user1_id && conn.user2_id);
 
-    // Format the return array to just be a list of the *other* users
+    // Format the return array to include user and connectionId
     let history = validConnections.map(conn => {
-      // The matched user is whichever one is NOT the requester
-      return conn.user1_id._id.toString() === userId ? conn.user2_id : conn.user1_id;
+      const otherUser = conn.user1_id._id.toString() === userId ? conn.user2_id : conn.user1_id;
+      return { user: otherUser, connectionId: conn._id.toString() };
     });
 
     // Filter out hidden connections
-    history = history.filter(u => !hiddenIds.includes(u._id.toString()));
+    history = history.filter(item => !hiddenIds.includes(item.user._id.toString()));
 
     // Deduplicate history array by user ID
     const uniqueHistory = [];
     const seen = new Set();
-    for (const u of history) {
-      if (!seen.has(u._id.toString())) {
-        seen.add(u._id.toString());
-        uniqueHistory.push(u);
+    for (const item of history) {
+      if (!seen.has(item.user._id.toString())) {
+        seen.add(item.user._id.toString());
+        uniqueHistory.push(item);
       }
     }
 
@@ -163,6 +164,78 @@ router.delete('/admin/users/:id', isAuthenticated, isAdmin, async (req, res) => 
   } catch (err) {
     console.error('Delete User Error:', err);
     res.status(500).json({ error: 'Server error deleting user' });
+  }
+});
+
+// GET /api/connections/:id
+router.get('/connections/:id', async (req, res) => {
+  try {
+    const connection = await Connection.findById(req.params.id);
+    if (!connection) return res.status(404).json({ error: 'Connection not found' });
+    res.json(connection);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/connections/:id/accept
+router.post('/connections/:id/accept', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const connection = await Connection.findById(req.params.id);
+    if (!connection) return res.status(404).json({ error: 'Connection not found' });
+
+    if (!connection.acceptedBy.includes(userId)) {
+      connection.acceptedBy.push(userId);
+    }
+    
+    if (connection.acceptedBy.length >= 2) {
+      connection.status = 'accepted';
+    }
+    
+    await connection.save();
+    res.json(connection);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/connections/:id/reject
+router.post('/connections/:id/reject', async (req, res) => {
+  try {
+    const connection = await Connection.findByIdAndUpdate(
+      req.params.id,
+      { status: 'rejected' },
+      { new: true }
+    );
+    res.json(connection);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// POST /api/connections/:id/messages
+router.post('/connections/:id/messages', async (req, res) => {
+  try {
+    const { senderId, text } = req.body;
+    
+    // Add new message and use $slice to keep only the last 5 messages
+    const connection = await Connection.findByIdAndUpdate(
+      req.params.id,
+      { 
+        $push: { 
+          messages: {
+            $each: [{ sender: senderId, text, timestamp: new Date() }],
+            $slice: -5 // keep last 5
+          } 
+        } 
+      },
+      { new: true }
+    );
+    
+    res.json(connection);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error sending message' });
   }
 });
 

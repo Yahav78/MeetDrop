@@ -8,10 +8,12 @@ import AdminDashboard from './components/AdminDashboard';
 import ConnectButton from './components/ConnectButton';
 import RadarLoading from './components/RadarLoading';
 import DigitalCard from './components/DigitalCard';
+import ConfirmationCard from './components/ConfirmationCard';
 
 function MainApp({ user }) {
-  const [matchingState, setMatchingState] = useState('IDLE');
+  const [matchingState, setMatchingState] = useState('IDLE'); // States: IDLE, MATCHING, PENDING_CONFIRMATION, WAITING_FOR_OTHER, SUCCESS, ERROR
   const [matchedUser, setMatchedUser] = useState(null);
+  const [connectionId, setConnectionId] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleConnect = async (lat, lon) => {
@@ -26,7 +28,12 @@ function MainApp({ user }) {
       const data = await res.json();
       if (res.ok) {
         setMatchedUser(data.match);
-        setMatchingState('SUCCESS');
+        setConnectionId(data.connectionId);
+        if (data.status === 'pending') {
+          setMatchingState('PENDING_CONFIRMATION');
+        } else {
+          setMatchingState('SUCCESS');
+        }
       } else {
         setErrorMsg(data.error || 'Match failed');
         setMatchingState('ERROR');
@@ -38,10 +45,70 @@ function MainApp({ user }) {
     }
   };
 
+  const handleAccept = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_URL}/api/connections/${connectionId}/accept`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user._id })
+      });
+      if (res.ok) {
+        const conn = await res.json();
+        if (conn.status === 'accepted') {
+          setMatchingState('SUCCESS');
+        } else {
+          setMatchingState('WAITING_FOR_OTHER');
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      await fetch(`${API_URL}/api/connections/${connectionId}/reject`, { method: 'POST' });
+    } catch (err) { console.error(err); }
+    setMatchingState('IDLE');
+  };
+
+  useEffect(() => {
+    let interval;
+    if ((matchingState === 'WAITING_FOR_OTHER' || matchingState === 'PENDING_CONFIRMATION') && connectionId) {
+      interval = setInterval(async () => {
+        try {
+          const API_URL = import.meta.env.VITE_API_URL || '';
+          const res = await fetch(`${API_URL}/api/connections/${connectionId}`);
+          if (res.ok) {
+            const conn = await res.json();
+            if (conn.status === 'accepted') {
+              setMatchingState('SUCCESS');
+            } else if (conn.status === 'rejected') {
+              setErrorMsg('The other person declined the match.');
+              setMatchingState('ERROR');
+            }
+          }
+        } catch (err) { console.error(err); }
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [matchingState, connectionId]);
+
   return (
     <>
       {matchingState === 'IDLE' && <ConnectButton onConnect={handleConnect} />}
       {matchingState === 'MATCHING' && <RadarLoading />}
+      {matchingState === 'PENDING_CONFIRMATION' && (
+        <ConfirmationCard user={matchedUser} onAccept={handleAccept} onDecline={handleDecline} />
+      )}
+      {matchingState === 'WAITING_FOR_OTHER' && (
+        <div className="radar-container animate-fade-in-up">
+          <div className="radar-sweep" style={{ animationDuration: '4s' }}></div>
+          <h3 className="loading-title">Waiting for response...</h3>
+        </div>
+      )}
       {matchingState === 'SUCCESS' && <DigitalCard user={matchedUser} onReset={() => setMatchingState('IDLE')} />}
       {matchingState === 'ERROR' && (
         <div className="error-container">

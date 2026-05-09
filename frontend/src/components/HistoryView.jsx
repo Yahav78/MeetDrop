@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DigitalCard from './DigitalCard';
+import ChatWindow from './ChatWindow';
 
 export default function HistoryView({ user, onUpdate }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [activeChat, setActiveChat] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,8 +20,8 @@ export default function HistoryView({ user, onUpdate }) {
         if (res.ok) {
           // Sort history so favorites are at the top
           data.sort((a, b) => {
-            const aFav = user.favorites?.includes(a._id) ? 1 : 0;
-            const bFav = user.favorites?.includes(b._id) ? 1 : 0;
+            const aFav = user.favorites?.includes(a.user._id) ? 1 : 0;
+            const bFav = user.favorites?.includes(b.user._id) ? 1 : 0;
             return bFav - aFav;
           });
           setHistory(data);
@@ -58,7 +60,7 @@ export default function HistoryView({ user, onUpdate }) {
         const updatedUser = await res.json();
         onUpdate(updatedUser);
         // Filter out hidden from local array
-        setHistory(prev => prev.filter(u => u._id !== targetId));
+        setHistory(prev => prev.filter(item => item.user._id !== targetId));
       }
     } catch (err) {
       console.error('Failed to hide connection', err);
@@ -82,6 +84,17 @@ export default function HistoryView({ user, onUpdate }) {
     );
   }
 
+  if (activeChat) {
+    return (
+      <ChatWindow 
+        connectionId={activeChat.connectionId} 
+        currentUser={user} 
+        otherUser={activeChat.user} 
+        onClose={() => setActiveChat(null)} 
+      />
+    );
+  }
+
   return (
     <div className="form-container glass-panel animate-fade-in-up" style={{ marginTop: '2rem', maxWidth: '40rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -96,7 +109,9 @@ export default function HistoryView({ user, onUpdate }) {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
-          {history.map((connUser, idx) => {
+          {history.map((historyItem, idx) => {
+            const connUser = historyItem.user;
+            const connectionId = historyItem.connectionId;
             const isFav = user.favorites?.includes(connUser._id);
             return (
               <div
@@ -109,7 +124,7 @@ export default function HistoryView({ user, onUpdate }) {
                   border: `1px solid ${isFav ? 'rgba(16, 185, 129, 0.4)' : 'rgba(51,65,85,0.5)'}`, transition: 'background 0.2s', position: 'relative'
                 }}
               >
-                <div className="card-avatar" style={{ width: '3rem', height: '3rem', marginTop: 0, border: '2px solid var(--slate-600)', boxShadow: 'none' }}>
+                <div className="card-avatar" style={{ width: '3rem', height: '3rem', margin: 0, border: '2px solid var(--slate-600)', boxShadow: 'none' }}>
                   <span style={{ fontSize: '1.2rem' }}>{connUser.firstName?.charAt(0).toUpperCase()}</span>
                 </div>
                 <div style={{ marginLeft: '1rem', flex: 1 }}>
@@ -117,6 +132,11 @@ export default function HistoryView({ user, onUpdate }) {
                   <p style={{ margin: 0, color: 'var(--emerald-400)', fontSize: '0.75rem' }}>{connUser.jobTitle || 'No Title'}</p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <button className="btn-icon" onClick={(e) => { e.stopPropagation(); setActiveChat(historyItem); }} title="Chat">
+                    <svg className="icon-chat" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '1.25rem', height: '1.25rem' }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                  </button>
                   <button className="btn-icon" onClick={(e) => toggleFavorite(e, connUser._id)} title={isFav ? "Unfavorite" : "Favorite"}>
                     <svg className={isFav ? "icon-fav active" : "icon-fav"} fill="currentColor" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={isFav ? 0 : 2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
