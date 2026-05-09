@@ -217,52 +217,66 @@ function App() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen relative overflow-hidden flex flex-col">
-      <div className="bg-layer-1"></div>
-      <div className="bg-layer-2"></div>
-      <div className="bg-layer-3"></div>
-      <div className="bg-layer-4"></div>
+    <div className="min-h-screen bg-[#0f172a] text-slate-200 selection:bg-brand-500/30">
+      {/* Dynamic Background */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-brand-600/10 blur-[120px] rounded-full animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
 
-      <header className="header">
-        <div className="header-container">
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <h1 className="logo-title">MEETDROP</h1>
-          </Link>
-          <div className="status-indicator-wrap">
-            {user || isAdmin || isOrganizer ? (
-              <>
-                <div className="status-indicator status-online"></div>
-                <span className="status-text">{isAdmin ? 'Overseer' : (isOrganizer ? 'Organizer' : 'Online')}</span>
-                {!isAdmin && !isOrganizer && (
-                  <>
-                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                    <Link to="/profile/edit" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Edit Profile</Link>
-                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                    <Link to="/history" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>History</Link>
-                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                    <Link to="/events" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Events</Link>
-                  </>
-                )}
-                {isOrganizer && (
-                  <>
-                    <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                    <Link to="/organizer" style={{ color: 'var(--slate-400)', fontSize: '0.75rem', textTransform: 'uppercase', textDecoration: 'none', fontWeight: 600 }}>Dashboard</Link>
-                  </>
-                )}
-                <span style={{ color: 'var(--slate-700)', margin: '0 0.5rem' }}>|</span>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--red-500)', fontSize: '0.75rem', textTransform: 'uppercase', fontWeight: 600, padding: 0 }}>Logout</button>
-              </>
-            ) : (
-              <>
-                <div className="status-indicator status-offline"></div>
-                <span className="status-text">Offline</span>
-              </>
-            )}
+      <header className="sticky top-0 z-50 glass border-b border-white/5 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Link to="/" className="flex items-center space-x-2 group">
+              <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center shadow-lg shadow-brand-500/20 group-hover:scale-110 transition-transform">
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h1 className="text-xl font-display font-bold tracking-tight text-white group-hover:text-brand-400 transition-colors">MEETDROP</h1>
+            </Link>
+
+            <div className="flex items-center space-x-4">
+              {user || isAdmin || isOrganizer ? (
+                <div className="flex items-center space-x-1 sm:space-x-3 text-xs sm:text-sm font-medium">
+                  <div className="hidden sm:flex items-center px-2 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20">
+                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
+                    {isAdmin ? 'Overseer' : (isOrganizer ? 'Organizer' : 'Online')}
+                  </div>
+
+                  {!isAdmin && !isOrganizer && (
+                    <nav className="flex items-center space-x-1 sm:space-x-4">
+                      <Link to="/profile/edit" className="text-slate-400 hover:text-white transition-colors py-1">Profile</Link>
+                      <Link to="/history" className="text-slate-400 hover:text-white transition-colors py-1">History</Link>
+                      <Link to="/events" className="text-slate-400 hover:text-white transition-colors py-1">Events</Link>
+                    </nav>
+                  )}
+                  
+                  {isOrganizer && (
+                    <Link to="/organizer" className="text-slate-400 hover:text-white transition-colors">Dashboard</Link>
+                  )}
+
+                  <div className="w-px h-4 bg-slate-700/50"></div>
+                  
+                  <button 
+                    onClick={handleLogout} 
+                    className="text-red-400 hover:text-red-300 transition-colors font-bold uppercase text-[10px] sm:text-xs tracking-wider"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center text-xs font-medium text-slate-500 uppercase tracking-widest">
+                  <div className="w-2 h-2 bg-slate-600 rounded-full mr-2"></div>
+                  Disconnected
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
-      <main className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <main className="relative z-10 flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Routes>
           <Route path="/login" element={(!user && !isAdmin) ? <AuthScreens onLogin={handleLogin} /> : <Navigate to={isAdmin ? "/admin" : "/"} />} />
           <Route path="/register" element={(!user && !isAdmin) ? <AuthScreens onLogin={handleLogin} /> : <Navigate to="/" />} />
@@ -286,5 +300,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;

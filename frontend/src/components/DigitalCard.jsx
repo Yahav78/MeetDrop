@@ -2,44 +2,83 @@ export default function DigitalCard({ user, onReset }) {
   if (!user) return null;
 
   return (
-    <div className="card-wrapper">
-      <div className="card-border-glow"></div>
-      <div className="card-panel">
-        <div className="card-success-header">
-          <span className="card-success-text">
-            <svg fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-            Match Confirmed
-          </span>
+    <div className="max-w-md w-full mx-auto relative group animate-float">
+      {/* Decorative Outer Glow */}
+      <div className="absolute -inset-1 bg-gradient-to-r from-brand-500 to-purple-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200"></div>
+      
+      <div className="relative glass rounded-[2.5rem] overflow-hidden shadow-2xl">
+        {/* Success Header Banner */}
+        <div className="bg-emerald-500/20 py-3 flex items-center justify-center space-x-2 border-b border-emerald-500/20">
+           <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20">
+              <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+           </div>
+           <span className="text-emerald-400 font-bold text-xs uppercase tracking-[0.2em]">Match Confirmed</span>
         </div>
 
-        <div className="card-avatar">
-          <span>{user.firstName?.charAt(0).toUpperCase()}</span>
+        <div className="p-8 flex flex-col items-center">
+           {/* Avatar Section */}
+           <div className="relative mb-6">
+              <div className="absolute -inset-4 bg-brand-500/10 rounded-full blur-xl"></div>
+              <div className="relative w-24 h-24 bg-slate-800 border-2 border-brand-500 rounded-full flex items-center justify-center text-4xl font-display font-bold text-brand-500 shadow-xl">
+                 {user.firstName?.charAt(0).toUpperCase()}
+              </div>
+           </div>
+
+           {/* User Info */}
+           <div className="text-center space-y-2 mb-6">
+              <h2 className="text-3xl font-display font-black text-white tracking-tight">{user.firstName} {user.lastName}</h2>
+              {user.jobTitle && (
+                <div className="inline-block px-3 py-1 bg-brand-500/10 text-brand-400 rounded-lg text-sm font-semibold tracking-wide border border-brand-500/10">
+                   {user.jobTitle}
+                </div>
+              )}
+           </div>
+
+           {/* Bio Section */}
+           {user.bio && (
+             <div className="w-full bg-slate-900/40 rounded-2xl p-4 border border-white/5 mb-8 italic text-slate-400 text-center text-sm leading-relaxed">
+                &ldquo;{user.bio}&rdquo;
+             </div>
+           )}
+
+           {/* Action Links */}
+           <div className="grid grid-cols-2 gap-4 w-full mb-8">
+              {user.githubUrl && (
+                <a 
+                  href={user.githubUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center justify-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 py-3 rounded-xl border border-white/5 transition-all active:scale-95"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                  <span className="font-bold text-sm">GitHub</span>
+                </a>
+              )}
+              {user.linkedinUrl && (
+                <a 
+                  href={user.linkedinUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-center justify-center space-x-2 bg-[#0077b5]/10 hover:bg-[#0077b5]/20 text-[#0077b5] py-3 rounded-xl border border-[#0077b5]/20 transition-all active:scale-95"
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                  <span className="font-bold text-sm">LinkedIn</span>
+                </a>
+              )}
+           </div>
+
+           {/* Reset Button */}
+           <button 
+             onClick={onReset} 
+             className="w-full text-slate-500 hover:text-slate-300 text-xs font-bold uppercase tracking-widest transition-colors"
+           >
+             Continue Searching
+           </button>
         </div>
-
-        <h2 className="card-name">{user.firstName} {user.lastName}</h2>
-        {user.jobTitle && <p className="card-job">{user.jobTitle}</p>}
-
-        {user.bio && (
-          <div className="card-bio-box">
-            <p className="card-bio">&ldquo;{user.bio}&rdquo;</p>
-          </div>
-        )}
-
-        <div className="card-links">
-          {user.githubUrl && (
-            <a href={user.githubUrl} target="_blank" rel="noopener noreferrer" className="link-github">GitHub</a>
-          )}
-          {user.linkedinUrl && (
-            <a href={user.linkedinUrl} target="_blank" rel="noopener noreferrer" className="link-linkedin">LinkedIn</a>
-          )}
-        </div>
-
-        <button onClick={onReset} className="btn-reset">
-          Connect with someone else
-        </button>
       </div>
     </div>
   );
 }
+
