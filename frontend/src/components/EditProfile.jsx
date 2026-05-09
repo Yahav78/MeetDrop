@@ -11,6 +11,7 @@ export default function EditProfile({ user, onUpdate }) {
       setFormData({
         firstName: user.firstName || '',
         lastName: user.lastName || '',
+        jobTitle: user.jobTitle || '',
         bio: user.bio || '',
         githubUrl: user.githubUrl || '',
         linkedinUrl: user.linkedinUrl || ''
