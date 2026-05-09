@@ -49,6 +49,11 @@
 
   input, textarea, select {
     color: var(--text-primary) !important;
+    background-color: var(--bg-card) !important;
+  }
+
+  .dark input, .dark textarea, .dark select {
+    background-color: rgba(15, 23, 42, 0.5) !important;
   }
 }
 
