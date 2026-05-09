@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 
+const ISRAELI_CITIES = [
+  'Tel Aviv', 'Jerusalem', 'Haifa', 'Beersheba', 'Netanya', 'Ashdod', 'Petah Tikva', 'Rishon LeZion'
+];
+
 export default function OrganizerDashboard() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ name: '', locationText: '', lat: '', lon: '', maxCapacity: '' });
+  const [formData, setFormData] = useState({ name: '', city: 'Tel Aviv', address: '', maxCapacity: '' });
   const [creating, setCreating] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -52,14 +56,12 @@ export default function OrganizerDashboard() {
         },
         body: JSON.stringify({
           ...formData,
-          lat: parseFloat(formData.lat),
-          lon: parseFloat(formData.lon),
           maxCapacity: parseInt(formData.maxCapacity)
         })
       });
       if (res.ok) {
         alert('Event created successfully!');
-        setFormData({ name: '', locationText: '', lat: '', lon: '', maxCapacity: '' });
+        setFormData({ name: '', city: 'Tel Aviv', address: '', maxCapacity: '' });
         fetchEvents();
       } else {
         const errData = await res.json();
@@ -70,6 +72,24 @@ export default function OrganizerDashboard() {
       alert('Network error');
     }
     setCreating(false);
+  };
+
+  const handleDeleteEvent = async (e, eventId) => {
+    e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this event?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setEvents(events.filter(ev => ev._id !== eventId));
+        if (selectedEvent?._id === eventId) setSelectedEvent(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   if (loading) return <div className="loading-title" style={{ marginTop: '5rem' }}>Loading Dashboard...</div>;
@@ -94,18 +114,14 @@ export default function OrganizerDashboard() {
                    <input required className="form-input" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} />
                 </div>
                 <div className="form-group">
-                   <label>Location (Text)</label>
-                   <input required className="form-input" value={formData.locationText} onChange={(e) => setFormData({...formData, locationText: e.target.value})} placeholder="e.g. Expo Tel Aviv" />
+                   <label>City</label>
+                   <select className="form-input" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})}>
+                      {ISRAELI_CITIES.map(city => <option key={city} value={city}>{city}</option>)}
+                   </select>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                   <div className="form-group" style={{ flex: 1 }}>
-                      <label>Latitude</label>
-                      <input required type="number" step="any" className="form-input" value={formData.lat} onChange={(e) => setFormData({...formData, lat: e.target.value})} />
-                   </div>
-                   <div className="form-group" style={{ flex: 1 }}>
-                      <label>Longitude</label>
-                      <input required type="number" step="any" className="form-input" value={formData.lon} onChange={(e) => setFormData({...formData, lon: e.target.value})} />
-                   </div>
+                <div className="form-group">
+                   <label>Address</label>
+                   <input required className="form-input" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} placeholder="e.g. Rothschild 1" />
                 </div>
                 <div className="form-group">
                    <label>Max Capacity</label>
@@ -135,9 +151,19 @@ export default function OrganizerDashboard() {
                            }}>
                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <h4 style={{ margin: 0, color: 'var(--white)' }}>{ev.name}</h4>
-                            <span style={{ fontSize: '0.8rem', color: ev.connectedUsers.length >= ev.maxCapacity ? 'var(--red-400)' : 'var(--emerald-400)' }}>
-                               {ev.connectedUsers.length} / {ev.maxCapacity} joined
-                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                               <span style={{ fontSize: '0.8rem', color: ev.connectedUsers.length >= ev.maxCapacity ? 'var(--red-400)' : 'var(--emerald-400)' }}>
+                                  {ev.connectedUsers.length} / {ev.maxCapacity}
+                               </span>
+                               <button 
+                                 onClick={(e) => handleDeleteEvent(e, ev._id)}
+                                 style={{ background: 'none', border: 'none', color: 'var(--red-500)', cursor: 'pointer', padding: '0.25rem' }}
+                               >
+                                 <svg style={{ width: '1rem', height: '1rem' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                 </svg>
+                               </button>
+                            </div>
                          </div>
                          <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.8rem', color: 'var(--slate-400)' }}>📍 {ev.locationText}</p>
                       </div>

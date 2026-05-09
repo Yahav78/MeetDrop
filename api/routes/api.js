@@ -199,15 +199,53 @@ router.post('/events', isAuthenticated, async (req, res) => {
     const user = await User.findById(req.user.id);
     if (user.role !== 'organizer') return res.status(403).json({ error: 'Only organizers can create events' });
     
-    const { name, locationText, lat, lon, maxCapacity } = req.body;
+    const { name, city, address, maxCapacity } = req.body;
+    
+    // Default coordinates for some major Israeli cities for distance sorting
+    const cityCoords = {
+      'Tel Aviv': { lat: 32.0853, lon: 34.7818 },
+      'Jerusalem': { lat: 31.7683, lon: 35.2137 },
+      'Haifa': { lat: 32.7940, lon: 34.9896 },
+      'Beersheba': { lat: 31.2520, lon: 34.7915 },
+      'Netanya': { lat: 32.3215, lon: 34.8532 },
+      'Ashdod': { lat: 31.8044, lon: 34.6553 },
+      'Petah Tikva': { lat: 32.0840, lon: 34.8878 },
+      'Rishon LeZion': { lat: 31.9730, lon: 34.7925 }
+    };
+    
+    const coords = cityCoords[city] || { lat: 32.0853, lon: 34.7818 }; // Default to TA if not found
+
     const event = new Event({
-      name, locationText, lat, lon, maxCapacity, organizerId: user._id, connectedUsers: []
+      name, 
+      locationText: `${address}, ${city}`, 
+      lat: coords.lat, 
+      lon: coords.lon, 
+      maxCapacity, 
+      organizerId: user._id, 
+      connectedUsers: []
     });
     await event.save();
     res.status(201).json(event);
   } catch (err) {
     console.error('Create Event Error:', err);
     res.status(500).json({ error: 'Server error creating event' });
+  }
+});
+
+// DELETE /api/events/:id - Delete an event (Organizer only)
+router.delete('/events/:id', isAuthenticated, async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ error: 'Event not found' });
+    
+    if (event.organizerId.toString() !== req.user.id) {
+      return res.status(403).json({ error: 'Not authorized to delete this event' });
+    }
+    
+    await Event.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Event deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error deleting event' });
   }
 });
 
