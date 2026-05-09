@@ -126,7 +126,7 @@ function MainApp({ user }) {
               </div>
               
               <div className="space-y-2">
-                <h2 className="text-2xl font-display font-black text-white tracking-tight">Match was declined</h2>
+                <h2 className="text-2xl font-display font-black text-white tracking-tight">Match was not found</h2>
                 <p className="text-slate-400 text-sm leading-relaxed">{errorMsg || "We couldn't establish a secure connection at this time."}</p>
               </div>
 
