@@ -132,17 +132,27 @@ export default function EventsTab({ currentUser }) {
               <div key={ev._id} className="group glass rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-white/[0.02] transition-all border-white/5">
                 <div className="space-y-1">
                   <h4 className="text-xl font-bold text-white group-hover:text-brand-400 transition-colors">{ev.name}</h4>
-                  <div className="flex items-center space-x-3 text-slate-400 text-sm">
-                    <span className="flex items-center">
-                       <svg className="w-4 h-4 mr-1 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                       </svg>
-                       {ev.locationText}
-                    </span>
-                    {distance && (
-                      <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-bold text-slate-500 uppercase">
-                         {distance} km
+                  <div className="flex flex-col space-y-1">
+                    <div className="flex items-center space-x-3 text-slate-400 text-sm">
+                      <span className="flex items-center">
+                         <svg className="w-4 h-4 mr-1 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                         </svg>
+                         {ev.locationText}
                       </span>
+                      {distance && (
+                        <span className="px-2 py-0.5 bg-slate-800 rounded-md text-[10px] font-bold text-slate-500 uppercase">
+                           {distance} km
+                        </span>
+                      )}
+                    </div>
+                    {ev.organizerId && (
+                      <div className="flex items-center text-xs text-slate-500 font-medium">
+                        <svg className="w-3.5 h-3.5 mr-1 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Organized by {ev.organizerId.firstName} {ev.organizerId.lastName}
+                      </div>
                     )}
                   </div>
                   <div className={`text-xs font-bold uppercase tracking-widest pt-1 ${isFull ? 'text-red-500/80' : 'text-emerald-500/80'}`}>
